@@ -33,6 +33,12 @@ const createResponse = (requestor_id, fileType, fileMessageId) => {
     }
   }
 
+  //TODO For future purposes...
+  //! Radiant1
+  if (requestor_id === "Radiant1") {
+    response = "TEST";
+  }
+
   // Created Response
   return response;
 };

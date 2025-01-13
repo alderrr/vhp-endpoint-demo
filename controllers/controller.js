@@ -1,9 +1,14 @@
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 const fs = require("fs");
 const path = require("path");
 const verifyCredentials = require("../helpers/verification");
 const checkReqType = require("../helpers/checkReqType");
 const checkMessageId = require("../helpers/checkMessageId");
 const createResponse = require("../helpers/createResponse");
+const drive = process.env.DRIVE;
 
 class Controller {
   static async checkRequest(req, res, next) {
@@ -12,6 +17,9 @@ class Controller {
       const xmlBody = req.body;
 
       // Input Validation
+      if (!drive) {
+        throw new Error();
+      }
       if (!requestor_id) {
         throw new Error("Missing requestor_id in headers");
       }
@@ -36,13 +44,10 @@ class Controller {
           1000
       );
       const formattedDate = new Date().toISOString().split("T")[0];
-      const folderPath = path.join(__dirname, "..", `XML/${client_id}/raw/`);
-      let fileName = "";
-      if (!fileType) {
-        fileName = `Request_Body_${formattedDate}_${formattedTime}.xml`;
-      } else {
-        fileName = `${fileType}_${formattedDate}_${formattedTime}.xml`;
-      }
+      const folderPath = path.join(
+        `${drive}/${requestor_id}/${client_id}/raw/`
+      );
+      const fileName = `${fileType}_${formattedDate}_${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
 
       // Creating Folder and File
@@ -50,6 +55,16 @@ class Controller {
         fs.mkdirSync(folderPath, { recursive: true });
       }
       fs.writeFileSync(filePath, xmlBody, "utf-8");
+
+      // Creating Debug Folders
+      for (let i = 1; i <= 12; i++) {
+        let debugPath = path.join(
+          `${drive}/${requestor_id}/${client_id}/debug${i}/`
+        );
+        if (!fs.existsSync(debugPath)) {
+          fs.mkdirSync(debugPath, { recursive: true });
+        }
+      }
 
       // Generating Response Message
       const responseMessage = createResponse(
