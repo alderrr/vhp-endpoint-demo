@@ -3,21 +3,21 @@ const errorHandler = (err, req, res, next) => {
   let status = 500;
   let message = "Internal Server Error";
 
-  console.log(err);
-
-  if (err.message === "Missing client_id or client_secret in headers") {
-    status = 400;
-    message = "Missing client_id or client_secret in headers";
-  }
-
-  if (err.message === "Invalid client_id or client_secret") {
-    status = 400;
-    message = "Invalid client_id or client_secret";
-  }
+  // console.log(err);
 
   if (err.message === "Invalid or missing XML body") {
     status = 400;
     message = "Invalid or missing XML body";
+  }
+
+  if (err.message === "Invalid client_id or client_secret") {
+    status = 401;
+    message = "Unauthorized";
+  }
+
+  if (err.message === "Missing client_id or client_secret in headers") {
+    status = 401;
+    message = "Unauthorized";
   }
 
   // Response

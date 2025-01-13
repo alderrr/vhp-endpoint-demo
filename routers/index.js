@@ -1,6 +1,6 @@
 const Controller = require("../controllers/controller");
 const router = require("express").Router();
 
-router.post("/", Controller.checkRequest);
+router.post("/vhpws/htng.xml", Controller.checkRequest);
 
 module.exports = router;
