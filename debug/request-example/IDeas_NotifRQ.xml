@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:htng="http://htng.org/PWSWG/2007/02/AsyncHeaders" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+	<soap:Header>
+		<wsa:MessageID>2ac8c6ee-f577-4ea8-afa9-1e5414ef8d6e</wsa:MessageID>
+		<htng:RelatesToCorrelationID>832cb826-5e02-483c-b219-cc8cd285afe9</htng:RelatesToCorrelationID>
+		<wsa:To>https://PartnerReplyToURL</wsa:To>
+		<wsa:Action>http://htng.org/2014B/HTNG_ARIAndReservationPush#OTA_HotelResNotifRQ</wsa:Action>
+		<wsa:ReplyTo>
+			<wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+		</wsa:ReplyTo>
+		<wsse:Security soap:mustUnderstand="true">
+			<wsse:UsernameToken>
+				<wsse:Username>oUsernamehere</wsse:Username>
+				<wsse:Password>oPassword</wsse:Password>
+			</wsse:UsernameToken>
+		</wsse:Security>
+	</soap:Header>
+	<soap:Body>
+		<OTA_HotelResNotifRS xmlns:ota="http://www.opentravel.org/OTA/2003/05">
+			<ota:Success/>
+		</OTA_HotelResNotifRS>
+	</soap:Body>
+</soap:Envelope>

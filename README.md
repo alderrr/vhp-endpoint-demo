@@ -48,7 +48,7 @@ To run this project locally:
 ## Example Request
 
 ```bash
-curl -X POST http://localhost:<port> -d @yourfile.xml -H "Content-Type: application/xml" -H "Origin: YourName"
+curl -X POST http://localhost:<port> -d @yourfile.xml -H "Content-Type: application/xml" -H "Requestor-ID: YourName"
 ```
 
 ## Response

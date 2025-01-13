@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:htng="http://htng.org/PWSWG/2007/02/AsyncHeaders" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+	<soap:Header>
+		<wsse:Security soap:mustUnderstand="true">
+			<wsse:UsernameToken>
+				<wsse:Username>inbounduser</wsse:Username>
+				<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">inboundpassword</wsse:Password>
+			</wsse:UsernameToken>
+		</wsse:Security>
+		<wsa:MessageID>1e28cffd-05c7-433d-933d-247f369fbf5c</wsa:MessageID>
+		<htng:CorrelationID>11028:HTNG:8517481-13371733</htng:CorrelationID>
+		<wsa:To>https://PartnerSendToURL</wsa:To>
+		<htng:ReplyTo>
+			<wsa:Address>https://IDeaSReplyToURL</wsa:Address>
+		</htng:ReplyTo>
+		<wsa:ReplyTo>
+			<wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+		</wsa:ReplyTo>
+		<wsa:Action>http://htng.org/2014B/HTNG_ARIAndReservationPushService#OTA_HotelRatePlanNotifRQ</wsa:Action>
+	</soap:Header>
+	<soap:Body>
+		<OTA_HotelRatePlanNotifRQ xmlns="http://www.opentravel.org/OTA/2003/05" MessageContentCode="8" Target="Production" TimeStamp="2019-01-14T04:55:08.518-05:00" TransactionIdentifier="0.4900041796379365" Version="3.000">
+			<RatePlans HotelCode="PartnerHotelCode">
+				<RatePlan CurrencyCode="USD" End="2019-09-14" RatePlanCode="BAR" RatePlanNotifType="Delta" Start="2018-09-14">
+					<Rates>
+						<Rate CurrencyCode="USD" End="2018-09-31" InvTypeCode="STD" RateTimeUnit="Day" Start="2018-09-31" Status="Open" UnitMultiplier="1">
+							<BaseByGuestAmts>
+								<BaseByGuestAmt AgeQualifyingCode="10" AmountBeforeTax="1708.14" NumberOfGuests="1"/>
+								<BaseByGuestAmt AgeQualifyingCode="10" AmountBeforeTax="1797.43" NumberOfGuests="2"/>
+							</BaseByGuestAmts>
+							<AdditionalGuestAmounts>
+								<AdditionalGuestAmount AgeQualifyingCode="10" Amount="178.57"/>
+								<AdditionalGuestAmount AgeQualifyingCode="8" Amount="0.0"/>
+							</AdditionalGuestAmounts>
+						</Rate>
+						<Rate CurrencyCode="USD" End="2018-09-31" InvTypeCode="DLX" RateTimeUnit="Day" Start="2018-09-31" Status="Open" UnitMultiplier="1">
+							<BaseByGuestAmts>
+								<BaseByGuestAmt AgeQualifyingCode="10" AmountBeforeTax="2032.22" NumberOfGuests="1"/>
+								<BaseByGuestAmt AgeQualifyingCode="10" AmountBeforeTax="2121.51" NumberOfGuests="2"/>
+							</BaseByGuestAmts>
+							<AdditionalGuestAmounts>
+								<AdditionalGuestAmount AgeQualifyingCode="10" Amount="178.57"/>
+								<AdditionalGuestAmount AgeQualifyingCode="8" Amount="0.0"/>
+							</AdditionalGuestAmounts>
+						</Rate>
+					</Rates>
+					<Description Name="Short Description">
+						<Text>BAR</Text>
+					</Description>
+					<Description Name="Long Description">
+						<Text>BAR</Text>
+					</Description>
+				</RatePlan>
+			</RatePlans>
+		</OTA_HotelRatePlanNotifRQ>
+	</soap:Body>
+</soap:Envelope>
