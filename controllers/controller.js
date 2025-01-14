@@ -1,7 +1,3 @@
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
-
 const fs = require("fs");
 const path = require("path");
 const verifyCredentials = require("../helpers/verification");
@@ -21,10 +17,10 @@ class Controller {
         throw new Error();
       }
       if (!requestor_id) {
-        throw new Error("Missing requestor_id in headers");
+        throw new Error("Invalid requestor_id");
       }
       if (!client_id || !client_secret) {
-        throw new Error("Missing client_id or client_secret in headers");
+        throw new Error("Invalid client_id or client_secret");
       }
       const verified = verifyCredentials(client_id, client_secret);
       if (!verified) {
