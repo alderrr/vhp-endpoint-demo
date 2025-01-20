@@ -1,12 +1,12 @@
 const crypto = require("crypto");
 
-const createResponse = (requestor_id, fileType, fileMessageId) => {
+const createResponse = (userId, fileType, fileMessageId) => {
   // Generating UUID and Response
   const uuid = generateUUID();
   let response = "";
 
   //! IDeaS
-  if (requestor_id === "IDeaS") {
+  if (userId === "VHP-IDeaS") {
     if (fileType === "RateRQ") {
       response = `<?xml version="1.0" encoding="utf-8"?>
       <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
@@ -35,7 +35,7 @@ const createResponse = (requestor_id, fileType, fileMessageId) => {
 
   //TODO For future purposes...
   //! Radiant1
-  if (requestor_id === "Radiant1") {
+  if (userId === "VHP-Radiant1") {
     response = "TEST";
   }
 
