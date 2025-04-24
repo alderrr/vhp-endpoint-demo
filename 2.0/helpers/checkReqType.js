@@ -13,6 +13,10 @@ const checkReqType = (xmlBody) => {
   if (flag_ideas_2) {
     return "NotifRQ";
   }
+  const flag_ideas_3 = xmlBody.includes("OTA_HotelRatePlanNotifRQ");
+  if (flag_ideas_3) {
+    return "RateRQ";
+  }
   //TODO Add other...
 
   //! Default

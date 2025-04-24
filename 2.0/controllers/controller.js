@@ -4,6 +4,7 @@ const { Buffer } = require("buffer");
 const verifyCredentials = require("../helpers/verification");
 const checkReqType = require("../helpers/checkReqType");
 const checkMessageId = require("../helpers/checkMessageId");
+const checkMessageAction = require("../helpers/checkMessageAction");
 const createResponse = require("../helpers/createResponse");
 const drive = process.env.DRIVE;
 
@@ -37,6 +38,7 @@ class Controller {
       // Getting data from XML
       const fileType = checkReqType(xmlBody);
       const fileMessageId = checkMessageId(xmlBody);
+      const fileMessageAction = checkMessageAction(xmlBody);
 
       // Creating File Name
       const formattedTime = Math.floor(
@@ -63,7 +65,12 @@ class Controller {
       }
 
       // Generating Response Message
-      const responseMessage = createResponse(userId, fileType, fileMessageId);
+      const responseMessage = createResponse(
+        userId,
+        fileType,
+        fileMessageId,
+        fileMessageAction
+      );
 
       // Sending Response Message
       res.status(200).send(responseMessage);
