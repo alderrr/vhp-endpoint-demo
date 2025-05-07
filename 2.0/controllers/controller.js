@@ -80,6 +80,7 @@ class Controller {
   }
   static async testConnection(req, res, next) {
     try {
+      console.log("masuk sini")
       const { client_id, client_secret } = req.headers;
 
       let userInfo = null;
