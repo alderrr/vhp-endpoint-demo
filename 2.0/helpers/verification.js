@@ -1,9 +1,13 @@
 const { Buffer } = require("buffer");
 
-const verifyCredentials = (client_id, client_secret) => {
+const verifyCredentials = (authorization) => {
+  if (!authorization || !authorization.startsWith("Basic ")) {
+    return false;
+  }
+  const base64Credentials = authorization.slice(6).trim();
+  const decoded = Buffer.from(base64Credentials, "base64").toString("utf-8");
   const clients = JSON.parse(process.env.CLIENTS);
-  const decodedSecret = Buffer.from(client_secret, "base64").toString("utf-8");
-  return clients[client_id] === decodedSecret;
+  return clients.includes(decoded);
 };
 
 module.exports = verifyCredentials;

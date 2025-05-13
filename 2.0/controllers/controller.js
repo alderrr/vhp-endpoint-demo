@@ -1,8 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 const { Buffer } = require("buffer");
+const { XMLValidator } = require("fast-xml-parser");
 const verifyCredentials = require("../helpers/verification");
 const checkReqType = require("../helpers/checkReqType");
+const checkToken = require("../helpers/checkToken");
 const checkMessageId = require("../helpers/checkMessageId");
 const checkMessageAction = require("../helpers/checkMessageAction");
 const createResponse = require("../helpers/createResponse");
@@ -11,29 +13,34 @@ const drive = process.env.DRIVE;
 class Controller {
   static async checkRequest(req, res, next) {
     try {
-      const { client_id, client_secret } = req.headers;
+      const { authorization } = req.headers;
       const xmlBody = req.body;
 
       // Input Validation
       if (!drive) {
         throw new Error();
       }
-      if (!client_id || !client_secret) {
-        throw new Error("Invalid client_id or client_secret");
+      if (!authorization) {
+        throw new Error("Invalid token");
       }
-      const verified = verifyCredentials(client_id, client_secret);
+      const verified = verifyCredentials(authorization);
       if (!verified) {
-        throw new Error("Invalid client_id or client_secret");
+        throw new Error("Invalid token");
       }
       if (!xmlBody || typeof xmlBody !== "string") {
         throw new Error("Invalid or missing XML body");
       }
+      if (XMLValidator.validate(xmlBody) !== true) {
+        throw new Error("Malformed XML body");
+      }
 
-      // Decode client secret
-      const decodedSecret = Buffer.from(client_secret, "base64").toString(
+      // Decode authorization
+      const base64Credentials = authorization.slice(6).trim();
+      const decodedSecret = Buffer.from(base64Credentials, "base64").toString(
         "utf-8"
       );
       const userId = decodedSecret.split(":")[0];
+      const hotelcode = decodedSecret.split(":")[1];
 
       // Getting data from XML
       const fileType = checkReqType(xmlBody);
@@ -46,7 +53,7 @@ class Controller {
           1000
       );
       const formattedDate = new Date().toISOString().split("T")[0];
-      const folderPath = path.join(`${drive}/${userId}/${client_id}/raw/`);
+      const folderPath = path.join(`${drive}/${userId}/${hotelcode}/raw/`);
       const fileName = `${fileType}_${formattedDate}_${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
 
@@ -58,7 +65,7 @@ class Controller {
 
       // Creating Debug Folders
       for (let i = 1; i <= 12; i++) {
-        let debugPath = path.join(`${drive}/${userId}/${client_id}/debug${i}/`);
+        let debugPath = path.join(`${drive}/${userId}/${hotelcode}/debug${i}/`);
         if (!fs.existsSync(debugPath)) {
           fs.mkdirSync(debugPath, { recursive: true });
         }
@@ -73,26 +80,32 @@ class Controller {
       );
 
       // Sending Response Message
-      res.status(200).send(responseMessage);
+      res
+        .set("Content-Type", "application/soap+xml")
+        .status(200)
+        .send(responseMessage);
     } catch (error) {
       next(error);
     }
   }
   static async testConnection(req, res, next) {
+    // GET METHOD
     try {
-      console.log("masuk sini")
-      const { client_id, client_secret } = req.headers;
-
+      const { authorization } = req.headers;
       let userInfo = null;
-      if (client_id && client_secret) {
-        const verified = verifyCredentials(client_id, client_secret);
+      if (authorization) {
+        const verified = verifyCredentials(authorization);
         if (verified) {
-          const decodedSecret = Buffer.from(client_secret, "base64").toString(
-            "utf-8"
-          );
+          const base64Credentials = authorization.slice(6).trim();
+          const decodedSecret = Buffer.from(
+            base64Credentials,
+            "base64"
+          ).toString("utf-8");
           const userId = decodedSecret.split(":")[0];
-          userInfo = { client_id, userId };
+          userInfo = userId;
         }
+      } else {
+        throw new Error("Invalid token");
       }
 
       const clientIp =

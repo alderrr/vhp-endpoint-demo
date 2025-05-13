@@ -6,19 +6,24 @@ const errorHandler = (err, req, res, next) => {
   let status = 500;
   let message = "Internal Server Error";
 
-  if (err.message === "Invalid requestor_id") {
-    status = 400;
-    message = "Invalid requestor_id";
-  }
-
   if (err.message === "Invalid or missing XML body") {
     status = 400;
     message = "Invalid or missing XML body";
   }
 
-  if (err.message === "Invalid client_id or client_secret") {
+  if (err.message === "Malformed XML body") {
+    status = 400;
+    message = "Malformed XML body";
+  }
+
+  if (err.message === "missing root element") {
+    status = 400;
+    message = "Malformed XML body";
+  }
+
+  if (err.message === "Invalid token") {
     status = 401;
-    message = "Unauthorized";
+    message = "Invalid token";
   }
 
   try {
