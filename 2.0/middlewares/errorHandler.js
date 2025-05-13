@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const checkMessageId = require("../helpers/checkMessageId");
+const checkMessageAction = require("../helpers/checkMessageAction");
 
 const generateUUID = () => {
   return crypto.randomUUID();
@@ -14,6 +15,7 @@ const errorHandler = (err, req, res, next) => {
   let uuid = ""
   let xmlBody = ""
   let fileMessageId = ""
+  let fileMessageAction = ""
 
   if (err.message === "Invalid or missing XML body") {
     status = 400;
@@ -32,6 +34,7 @@ const errorHandler = (err, req, res, next) => {
     uuid = generateUUID()
     xmlBody = req.body
     fileMessageId = checkMessageId(xmlBody);
+    fileMessageAction = checkMessageAction(xmlBody)
   }
 
   try {
@@ -61,7 +64,7 @@ Stack: ${err.stack || err}
     res.status(status).type("application/soap+xml").send(`<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
   <soap:Header>
-    <wsa:Action>http://htng.org/PWSWG/2010/12/RatePlan_SubmitRequest</wsa:Action>
+    <wsa:Action>${fileMessageAction}</wsa:Action>
     <wsa:MessageID>${uuid}</wsa:MessageID>
     <wsa:RelatesTo>${fileMessageId}</wsa:RelatesTo>
     <wsa:To>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
