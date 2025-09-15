@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { Buffer } = require("buffer");
-const { XMLValidator } = require("fast-xml-parser");
+const { XMLParser, XMLValidator } = require("fast-xml-parser");
 const verifyCredentials = require("../helpers/verification");
 const checkReqType = require("../helpers/checkReqType");
 const checkToken = require("../helpers/checkToken");
@@ -16,7 +16,8 @@ class Controller {
       const { authorization } = req.headers;
       const xmlBody = req.body;
 
-      // Input Validation
+      console.log(authorization);
+
       if (!drive) {
         throw new Error();
       }
@@ -34,28 +35,54 @@ class Controller {
         throw new Error("Malformed XML body");
       }
 
+      const xmlParser = new XMLParser({
+        ignoreAttributes: false,
+      });
+      const jsonObject = xmlParser.parse(xmlBody);
+      const hotelCode =
+        jsonObject["soap:Envelope"]["OTA_HotelResNotifRQ"]["ReservationsList"][
+          "HotelReservation"
+        ]["BasicPropertyInfo"]["@_HotelCode"];
+
       // Decode authorization
       const base64Credentials = authorization.slice(6).trim();
       const decodedSecret = Buffer.from(base64Credentials, "base64").toString(
         "utf-8"
       );
       const userId = decodedSecret.split(":")[0];
-      const hotelcode = decodedSecret.split(":")[1];
+      // const hotelcode = decodedSecret.split(":")[1];
+
+      console.log(userId, hotelCode);
 
       // Getting data from XML
       const fileType = checkReqType(xmlBody);
       const fileMessageId = checkMessageId(xmlBody);
       const fileMessageAction = checkMessageAction(xmlBody);
 
-      // Creating File Name
-      const formattedTime = Math.floor(
-        (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
-          1000
-      );
       const formattedDate = new Date().toISOString().split("T")[0];
-      const folderPath = path.join(`${drive}/${userId}/${hotelcode}/raw/`);
-      const fileName = `${fileType}_${formattedDate}_${formattedTime}.xml`;
+      const folderPath = path.join(`${drive}/${userId}/${hotelCode}/raw/`);
+
+      let formattedTime;
+      let fileName;
+      if (userId === "VHP-CMGRP") {
+        formattedTime = new Date()
+          .toISOString()
+          .replace(/\D/g, "")
+          .slice(6, 18);
+        fileName = `rsv_${hotelCode}_${formattedTime}.xml`;
+      } else {
+        formattedTime = Math.floor(
+          (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
+            1000
+        );
+        fileName = `${fileType}_${formattedDate}_${formattedTime}.xml`;
+      }
       const filePath = path.join(folderPath, fileName);
+
+      // C:/VHP-RMS/1234/raw
+      // C:/VHP-BE/1234/raw
+      // C:/VHP-GRP/1234/raw
+      // C:/VHP-CM/
 
       // Creating Folder and File
       if (!fs.existsSync(folderPath)) {
@@ -65,7 +92,7 @@ class Controller {
 
       // Creating Debug Folders
       for (let i = 1; i <= 12; i++) {
-        let debugPath = path.join(`${drive}/${userId}/${hotelcode}/debug${i}/`);
+        let debugPath = path.join(`${drive}/${userId}/${hotelCode}/debug${i}/`);
         if (!fs.existsSync(debugPath)) {
           fs.mkdirSync(debugPath, { recursive: true });
         }

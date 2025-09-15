@@ -63,6 +63,24 @@ const createResponse = (userId, fileType, fileMessageId, fileMessageAction) => {
     }
   }
 
+  //! VHP-CMGRP
+  if (userId === "VHP-CMGRP") {
+    const now = new Date().toISOString().slice(0, 19);
+    if (fileType === "NotifRQ") {
+      response = `<OTA_HotelResNotifRS TimeStamp="${now}">
+        <HotelReservations>
+          <HotelReservation>
+            <ResGlobalInfo>
+              <HotelReservationIDs>
+              </HotelReservationIDs>
+            </ResGlobalInfo>
+          </HotelReservation>
+        </HotelReservations>
+        <Success/>
+      </OTA_HotelResNotifRS>`;
+    }
+  }
+
   //TODO For future purposes...
 
   // Created Response

@@ -1,22 +1,12 @@
 const checkReqType = (xmlBody) => {
   // Checking Flag in XML and Return Response Type for File Name
   //! IDeaS
-  const flag_ideas_1 = xmlBody.includes(
-    "HTNG_ARIAndReservationPushService#OTA_HotelRatePlanNotifRQ"
-  );
-  if (flag_ideas_1) {
+  if (xmlBody.includes("HTNG_ARIAndReservationPush#OTA_HotelResNotifRQ"))
     return "RateRQ";
-  }
-  const flag_ideas_2 = xmlBody.includes(
-    "HTNG_ARIAndReservationPush#OTA_HotelResNotifRQ"
-  );
-  if (flag_ideas_2) {
+  if (xmlBody.includes("HTNG_ARIAndReservationPush#OTA_HotelResNotifRQ"))
     return "NotifRQ";
-  }
-  const flag_ideas_3 = xmlBody.includes("OTA_HotelRatePlanNotifRQ");
-  if (flag_ideas_3) {
-    return "RateRQ";
-  }
+  if (xmlBody.includes("OTA_HotelRatePlanNotifRQ")) return "RateRQ";
+  if (xmlBody.includes("OTA_HotelResNotifRQ")) return "NotifRQ";
   //TODO Add other...
 
   //! Default
