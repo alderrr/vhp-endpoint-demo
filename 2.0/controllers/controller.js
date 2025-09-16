@@ -65,10 +65,13 @@ class Controller {
       let formattedTime;
       let fileName;
       if (userId === "VHP-CMGRP") {
-        formattedTime = new Date()
-          .toISOString()
-          .replace(/\D/g, "")
-          .slice(6, 18);
+        formattedTime =
+          String(now.getDate()).padStart(2, "0") +
+          String(now.getMonth()).padStart(2, "0") +
+          String(now.getFullYear()).sile(-2) +
+          String(now.getHours()).padStart(2, "0") +
+          String(now.getMinutes()).padStart(2, "0") +
+          String(now.getSeconds()).padStart(2, "0");
         fileName = `rsv_${hotelCode}_${formattedTime}.xml`;
       } else {
         formattedTime = Math.floor(
