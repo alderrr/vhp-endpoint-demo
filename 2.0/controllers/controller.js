@@ -16,8 +16,6 @@ class Controller {
       const { authorization } = req.headers;
       const xmlBody = req.body;
 
-      console.log(authorization);
-
       if (!drive) {
         throw new Error();
       }
@@ -52,8 +50,6 @@ class Controller {
       const userId = decodedSecret.split(":")[0];
       // const hotelcode = decodedSecret.split(":")[1];
 
-      console.log(userId, hotelCode);
-
       // Getting data from XML
       const fileType = checkReqType(xmlBody);
       const fileMessageId = checkMessageId(xmlBody);
@@ -65,10 +61,11 @@ class Controller {
       let formattedTime;
       let fileName;
       if (userId === "VHP-CMGRP") {
+        const now = new Date();
         formattedTime =
           String(now.getDate()).padStart(2, "0") +
-          String(now.getMonth()).padStart(2, "0") +
-          String(now.getFullYear()).sile(-2) +
+          String(now.getMonth() + 1).padStart(2, "0") +
+          String(now.getFullYear()).slice(-2) +
           String(now.getHours()).padStart(2, "0") +
           String(now.getMinutes()).padStart(2, "0") +
           String(now.getSeconds()).padStart(2, "0");
