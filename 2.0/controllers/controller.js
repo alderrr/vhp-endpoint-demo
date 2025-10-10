@@ -185,6 +185,60 @@ class Controller {
       next(error);
     }
   }
+  static async createReservation(req, res, next) {
+    try {
+      const { sub, hotel } = req.user;
+      const xmlBody = req.body;
+
+      if (!drive) {
+        throw {
+          name: "Drive is required.",
+        };
+      }
+      if (
+        !xmlBody ||
+        typeof xmlBody !== "string" ||
+        XMLValidator.validate(xmlBody) !== true
+      ) {
+        throw {
+          name: "Invalid XML body.",
+        };
+      }
+
+      const formattedDate = new Date()
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, "");
+      const folderPath = path.join(`${drive}/${sub}/${hotel}/raw/`);
+      const formattedTime = Math.floor(
+        (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
+          1000
+      );
+      const fileName = `rsv_${hotel}_${formattedDate}${formattedTime}.xml`;
+      const filePath = path.join(folderPath, fileName);
+
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+      fs.writeFileSync(filePath, xmlBody, "utf-8");
+
+      for (let i = 1; i <= 12; i++) {
+        let debugPath = path.join(`${drive}/${sub}/${hotel}/debug${i}/`);
+        if (!fs.existsSync(debugPath)) {
+          fs.mkdirSync(debugPath, { recursive: true });
+        }
+      }
+
+      res.status(202).json({
+        statusCode: 202,
+        statusDescription: `Message Received | Hotel Code: ${hotel}`,
+        data: "SUCCESS",
+      });
+    } catch (err) {
+      console.error(err);
+      next(err);
+    }
+  }
 }
 
 module.exports = Controller;

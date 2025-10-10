@@ -1,7 +1,3 @@
-// if (!isProduction) {
-//   require("dotenv").config();
-// }
-
 const dotenv = require("dotenv");
 dotenv.config();
 const isProduction = process.env.NODE_ENV === "production";
@@ -10,10 +6,10 @@ const fs = require("fs");
 const https = require("https");
 const express = require("express");
 const errorHandler = require("./middlewares/errorHandler");
-const morganMiddleware = require("./middlewares/morgan");
+// const morganMiddleware = require("./middlewares/morgan");
 
 const app = express();
-const port = isProduction ? 4443 : process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 const router = require("./routers/index");
 
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
@@ -25,7 +21,7 @@ app.use(
   })
 );
 
-app.use(morganMiddleware);
+// app.use(morganMiddleware);
 app.use(router);
 app.use(errorHandler);
 
@@ -35,10 +31,12 @@ if (isProduction) {
     key: fs.readFileSync(
       `C:\\Certbot\\live\\integration.e1-vhp.com\\privkey.pem`
     ),
+    // cert: fs.readFileSync(
+    //   `C:\\Certbot\\live\\integration.e1-vhp.com\\cert.pem`
+    // ),
     cert: fs.readFileSync(
-      `C:\\Certbot\\live\\integration.e1-vhp.com\\cert.pem`
+      `C:\\Certbot\\live\\integration.e1-vhp.com\\fullchain.pem`
     ),
-    // cert.pem -> fullchain.pem
   };
 
   //! Create and start HTTPS server
