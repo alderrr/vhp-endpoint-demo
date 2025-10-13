@@ -1,13 +1,16 @@
 const errorHandler = (err, req, res, next) => {
   let statusCode = 500;
-  let statusDescription = "Internal Server Error";
+  let statusDescription = `Internal Server Error`;
 
-  if (err.name === "Drive is required.") {
-    statusCode = 400;
-    statusDescription = "Bad Request - Drive is required";
+  console.error(err);
+
+  if (err.name === "Missing Environment Variable: Drive") {
+    statusCode = 500;
+    statusDescription =
+      "Internal Server Error - Missing Environment Variable: Drive";
   }
 
-  if (err.name === "Invalid XML body.") {
+  if (err.name === "Invalid XML body") {
     statusCode = 400;
     statusDescription = "Bad Request - Invalid XML body";
   }

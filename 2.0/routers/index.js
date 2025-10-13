@@ -7,9 +7,19 @@ router.get("/vhpws/htng.xml", Controller.testConnection);
 router.post("/vhpws/htng.xml", Controller.checkRequest);
 
 router.post("/api/v1/login", authController.getToken);
-router.post("/admin/client/add", authController.createClient);
-router.get("/admin/client/all", authController.getAllClients);
+router.post("/api/v1/admin/client/add", authController.createClient);
+router.get("/api/v1/admin/client/all", authController.getAllClients);
 
-router.post("/vhpws/reservation", authMiddleware, Controller.createReservation);
+router.post(
+  "/api/v1/reservation",
+  authMiddleware,
+  Controller.createReservation
+);
+router.post("/api/v1/rate", authMiddleware, Controller.createRate);
+router.post(
+  "/api/v1/availability",
+  authMiddleware,
+  Controller.createAvailability
+);
 
 module.exports = router;
