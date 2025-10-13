@@ -6,7 +6,7 @@ const router = require("express").Router();
 router.get("/vhpws/htng.xml", Controller.testConnection);
 router.post("/vhpws/htng.xml", Controller.checkRequest);
 
-router.post("/oauth/token", authController.getToken);
+router.post("/api/v1/login", authController.getToken);
 router.post("/admin/client/add", authController.createClient);
 router.get("/admin/client/all", authController.getAllClients);
 
