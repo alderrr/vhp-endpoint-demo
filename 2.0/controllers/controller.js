@@ -33,14 +33,41 @@ class Controller {
         throw new Error("Malformed XML body");
       }
 
+      // Extract Hotel Code
       const xmlParser = new XMLParser({
         ignoreAttributes: false,
       });
       const jsonObject = xmlParser.parse(xmlBody);
-      const hotelCode =
-        jsonObject["soap:Envelope"]["OTA_HotelResNotifRQ"]["ReservationsList"][
-          "HotelReservation"
-        ]["BasicPropertyInfo"]["@_HotelCode"];
+      const envelopeKey = Object.keys(jsonObject).find((k) =>
+        k.includes("Envelope")
+      );
+      const envelope = jsonObject[envelopeKey];
+      const bodyKey = Object.keys(envelope).find((k) => k.includes("Body"));
+      const body = envelope[bodyKey];
+      const messageKey = Object.keys(body).find(
+        (k) =>
+          k.includes("OTA_HotelResNotifRQ") ||
+          k.includes("OTA_HotelRatePlanNotifRQ") ||
+          k.includes("OTA_HotelAvailNotifRQ")
+      );
+      if (!messageKey) {
+        throw new Error("Unsupported OTA Message Type");
+      }
+      const message = body[messageKey];
+
+      let hotelCode;
+      if (messageKey.includes("OTA_HotelResNotifRQ")) {
+        hotelCode =
+          message["ReservationsList"]["HotelReservation"]["BasicPropertyInfo"][
+            "@_HotelCode"
+          ];
+      } else if (messageKey.includes("OTA_HotelRatePlanNotifRQ")) {
+        hotelCode = message["RatePlans"]["@_HotelCode"];
+      } else if (messageKey.includes("OTA_HotelAvailNotifRQ")) {
+        hotelCode = message["AvailStatusMessages"]["@_HotelCode"];
+      } else {
+        throw new Error("Cannot extract hotel code from message");
+      }
 
       // Decode authorization
       const base64Credentials = authorization.slice(6).trim();
