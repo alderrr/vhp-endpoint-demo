@@ -214,7 +214,7 @@ class Controller {
   }
   static async createReservation(req, res, next) {
     try {
-      const { sub, hotel } = req.user;
+      const { sub } = req.user;
       const xmlBody = req.body;
 
       if (!drive) {
@@ -232,16 +232,29 @@ class Controller {
         };
       }
 
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+      });
+      const parsedXml = parser.parse(xmlBody);
+
+      const notifRQ =
+        parsedXml["OTA_HotelResNotifRQ"] || parsedXml["ns:OTA_HotelResNotifRQ"];
+      const hotelCode =
+        notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
+          ?.BasicPropertyInfo?.HotelCode;
+      if (!hotelCode) throw { name: "HotelCode not found in XML" };
+
       const formattedDate = new Date()
         .toISOString()
         .slice(0, 10)
         .replace(/-/g, "");
-      const folderPath = path.join(`${drive}/${sub}/${hotel}/raw/`);
+      const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
       const formattedTime = Math.floor(
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
           1000
       );
-      const fileName = `rsv_${hotel}_${formattedDate}${formattedTime}.xml`;
+      const fileName = `rsv_${hotelCode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
 
       if (!fs.existsSync(folderPath)) {
@@ -250,7 +263,7 @@ class Controller {
       fs.writeFileSync(filePath, xmlBody, "utf-8");
 
       for (let i = 1; i <= 12; i++) {
-        let debugPath = path.join(`${drive}/${sub}/${hotel}/debug${i}/`);
+        let debugPath = path.join(`${drive}/${sub}/${hotelCode}/debug${i}/`);
         if (!fs.existsSync(debugPath)) {
           fs.mkdirSync(debugPath, { recursive: true });
         }
@@ -258,7 +271,7 @@ class Controller {
 
       res.status(202).json({
         statusCode: 202,
-        statusDescription: `Message Received | Hotel Code: ${hotel}`,
+        statusDescription: `Message Received | Hotel Code: ${hotelCode}`,
         data: "SUCCESS",
       });
     } catch (err) {
@@ -268,7 +281,7 @@ class Controller {
   }
   static async createRate(req, res, next) {
     try {
-      const { sub, hotel } = req.user;
+      const { sub } = req.user;
       const xmlBody = req.body;
 
       if (!drive) {
@@ -286,16 +299,29 @@ class Controller {
         };
       }
 
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+      });
+      const parsedXml = parser.parse(xmlBody);
+
+      const notifRQ =
+        parsedXml["OTA_HotelResNotifRQ"] || parsedXml["ns:OTA_HotelResNotifRQ"];
+      const hotelCode =
+        notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
+          ?.BasicPropertyInfo?.HotelCode;
+      if (!hotelCode) throw { name: "HotelCode not found in XML" };
+
       const formattedDate = new Date()
         .toISOString()
         .slice(0, 10)
         .replace(/-/g, "");
-      const folderPath = path.join(`${drive}/${sub}/${hotel}/raw/`);
+      const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
       const formattedTime = Math.floor(
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
           1000
       );
-      const fileName = `rate_${hotel}_${formattedDate}${formattedTime}.xml`;
+      const fileName = `rate_${hotelCode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
 
       if (!fs.existsSync(folderPath)) {
@@ -304,7 +330,7 @@ class Controller {
       fs.writeFileSync(filePath, xmlBody, "utf-8");
 
       for (let i = 1; i <= 12; i++) {
-        let debugPath = path.join(`${drive}/${sub}/${hotel}/debug${i}/`);
+        let debugPath = path.join(`${drive}/${sub}/${hotelCode}/debug${i}/`);
         if (!fs.existsSync(debugPath)) {
           fs.mkdirSync(debugPath, { recursive: true });
         }
@@ -312,7 +338,7 @@ class Controller {
 
       res.status(202).json({
         statusCode: 202,
-        statusDescription: `Message Received | Hotel Code: ${hotel}`,
+        statusDescription: `Message Received | Hotel Code: ${hotelCode}`,
         data: "SUCCESS",
       });
     } catch (err) {
@@ -322,7 +348,7 @@ class Controller {
   }
   static async createAvailability(req, res, next) {
     try {
-      const { sub, hotel } = req.user;
+      const { sub } = req.user;
       const xmlBody = req.body;
 
       if (!drive) {
@@ -340,16 +366,29 @@ class Controller {
         };
       }
 
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+      });
+      const parsedXml = parser.parse(xmlBody);
+
+      const notifRQ =
+        parsedXml["OTA_HotelResNotifRQ"] || parsedXml["ns:OTA_HotelResNotifRQ"];
+      const hotelCode =
+        notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
+          ?.BasicPropertyInfo?.HotelCode;
+      if (!hotelCode) throw { name: "HotelCode not found in XML" };
+
       const formattedDate = new Date()
         .toISOString()
         .slice(0, 10)
         .replace(/-/g, "");
-      const folderPath = path.join(`${drive}/${sub}/${hotel}/raw/`);
+      const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
       const formattedTime = Math.floor(
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
           1000
       );
-      const fileName = `rs_avail_${hotel}_${formattedDate}${formattedTime}.xml`;
+      const fileName = `rs_avail_${hotelCode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
 
       if (!fs.existsSync(folderPath)) {
@@ -358,7 +397,7 @@ class Controller {
       fs.writeFileSync(filePath, xmlBody, "utf-8");
 
       for (let i = 1; i <= 12; i++) {
-        let debugPath = path.join(`${drive}/${sub}/${hotel}/debug${i}/`);
+        let debugPath = path.join(`${drive}/${sub}/${hotelCode}/debug${i}/`);
         if (!fs.existsSync(debugPath)) {
           fs.mkdirSync(debugPath, { recursive: true });
         }
@@ -366,7 +405,7 @@ class Controller {
 
       res.status(202).json({
         statusCode: 202,
-        statusDescription: `Message Received | Hotel Code: ${hotel}`,
+        statusDescription: `Message Received | Hotel Code: ${hotelCode}`,
         data: "SUCCESS",
       });
     } catch (err) {

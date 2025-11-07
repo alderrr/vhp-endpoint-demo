@@ -1,13 +1,12 @@
 const bcrypt = require("bcryptjs");
 const { connectDB } = require("../config/mongodb");
 
-const addClient = async ({ clientId, clientSecret, hotelCode }) => {
+const addClient = async ({ clientId, clientSecret }) => {
   const db = await connectDB();
   const hash = await bcrypt.hash(clientSecret, 10);
   await db.collection("clients").insertOne({
     client_id: clientId,
     client_secret_hash: hash,
-    hotel_code: hotelCode,
     created_at: new Date(),
   });
 };
@@ -20,16 +19,16 @@ const findAllClients = async () => {
     .toArray();
 };
 
-const findClientByIdAndHotel = async (clientId, hotelCode) => {
+const findClientById = async (clientId) => {
   const db = await connectDB();
   return db.collection("clients").findOne({
     client_id: clientId,
-    hotel_code: hotelCode,
   });
 };
 
-const verifyClient = async (clientId, clientSecret, hotelCode) => {
-  const client = await findClientByIdAndHotel(clientId, hotelCode);
+const verifyClient = async (clientId, clientSecret) => {
+  const client = await findClientById(clientId);
+  console.log(client);
   if (!client) return null;
   const ok = await bcrypt.compare(clientSecret, client.client_secret_hash);
   return ok ? client : null;
@@ -38,6 +37,6 @@ const verifyClient = async (clientId, clientSecret, hotelCode) => {
 module.exports = {
   addClient,
   findAllClients,
-  findClientByIdAndHotel,
+  findClientById,
   verifyClient,
 };
