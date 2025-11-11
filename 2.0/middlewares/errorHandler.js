@@ -10,9 +10,18 @@ const errorHandler = (err, req, res, next) => {
       "Internal Server Error - Missing Environment Variable: Drive";
   }
 
-  if (err.name === "Invalid XML body") {
+  if (
+    err.name === "Invalid XML body" ||
+    err.name === "Malformed XML body" ||
+    err.name === "Invalid or missing XML body"
+  ) {
     statusCode = 400;
     statusDescription = "Bad Request - Invalid XML body";
+  }
+
+  if (err.name === "Invalid token") {
+    statusCode = 401;
+    statusDescription = "Unauthorized - Invalid token";
   }
 
   res.status(statusCode).json({

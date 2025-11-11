@@ -9,19 +9,15 @@ const {
 class authController {
   static async getToken(req, res, next) {
     try {
-      const auth = req.headers.authorization || "";
-      let client_id, client_secret;
-
-      if (auth.startsWith("Basic ")) {
-        const decoded = Buffer.from(auth.slice(6), "base64").toString("utf8");
-        [client_id, client_secret] = decoded.split(":");
+      const { client_id, client_secret, grant_type } = req.body;
+      if (!client_id || !client_secret || !grant_type) {
+        return res.status(400).json({ error: "invalid_client" });
+      }
+      if (grant_type !== "client_credentials") {
+        return res.status(400).json({ error: "unsupported grant type" });
       }
 
-      if (!client_id || !client_secret) {
-        return res.status(401).json({ error: "invalid_client" });
-      }
       const client = await verifyClient(client_id, client_secret);
-      console.log(client);
       if (!client) {
         return res.status(401).json({ error: "invalid_client" });
       }
@@ -34,7 +30,6 @@ class authController {
         expires_in: 3600,
       });
     } catch (err) {
-      console.log(err);
       next(err);
     }
   }

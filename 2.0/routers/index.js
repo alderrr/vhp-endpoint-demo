@@ -11,11 +11,15 @@ router.post("/api/v1/admin/client/add", authController.createClient);
 router.get("/api/v1/admin/client/all", authController.getAllClients);
 
 router.post(
-  "/api/v1/reservation",
+  "/api/v1/events-delivery/reservations",
   authMiddleware,
   Controller.createReservation
 );
-router.post("/api/v1/rate", authMiddleware, Controller.createRate);
+router.post(
+  "/api/v1/events-delivery/rates",
+  authMiddleware,
+  Controller.createRate
+);
 router.post(
   "/api/v1/availability",
   authMiddleware,
