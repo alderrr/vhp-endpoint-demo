@@ -17,7 +17,7 @@ class Controller {
       const xmlBody = req.body;
 
       if (!drive) {
-        throw new Error();
+        throw new Error("Missing Environment Variable: Drive");
       }
       if (!authorization) {
         throw new Error("Invalid token");
