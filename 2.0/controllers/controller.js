@@ -346,7 +346,7 @@ class Controller {
       next(err);
     }
   }
-  static async createAvailability(req, res, next) {
+  static async requestNotification(req, res, next) {
     try {
       const { sub } = req.user;
       const xmlBody = req.body;
@@ -388,7 +388,7 @@ class Controller {
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
           1000
       );
-      const fileName = `rs_avail_${hotelCode}_${formattedDate}${formattedTime}.xml`;
+      const fileName = `notifRS_${hotelCode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
 
       if (!fs.existsSync(folderPath)) {

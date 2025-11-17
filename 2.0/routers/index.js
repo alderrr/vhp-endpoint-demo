@@ -21,9 +21,9 @@ router.post(
   Controller.createRate
 );
 router.post(
-  "/api/v1/availability",
+  "/api/v1/events-delivery/notifications",
   authMiddleware,
-  Controller.createAvailability
+  Controller.requestNotification
 );
 
 module.exports = router;
