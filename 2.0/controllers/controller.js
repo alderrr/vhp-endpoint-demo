@@ -518,7 +518,7 @@ class Controller {
           fs.mkdirSync(debugPath, { recursive: true });
         }
       }
-      const now = new Date().toISOString().slice(0, 19);
+      const now = new Date().toISOString().slice(0, 19) + "Z";
       res.set("Content-Type", "application/soap+xml").status(200)
         .send(`<OTA_HotelResNotifRS TimeStamp="${now}">
         <HotelReservations>
