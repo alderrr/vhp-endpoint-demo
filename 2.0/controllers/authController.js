@@ -2,9 +2,16 @@ const { signToken } = require("../helpers/jwt");
 const {
   addClient,
   findAllClients,
-  verifyClient,
   findClientById,
+  verifyClient,
 } = require("../helpers/clients");
+const {
+  addHotel,
+  getAllHotels,
+  getHotelByHotelcode,
+  editHotel,
+  verifyHotel,
+} = require("../helpers/hotelCredential");
 
 class authController {
   static async getToken(req, res, next) {
@@ -59,6 +66,70 @@ class authController {
     try {
       const clients = await findAllClients();
       res.json(clients);
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async createHotel(req, res, next) {
+    try {
+      const { username, password, hotelcode, directory } = req.body;
+
+      if (!username || !password || !hotelcode) {
+        return res
+          .status(400)
+          .json({ error: "Mandatory fields: username, password, hotelcode" });
+      }
+
+      const existing = await getHotelByHotelcode(hotelcode);
+      if (existing) {
+        return res.status(400).json({ error: "hotelcode already exists" });
+      }
+
+      await addHotel({
+        username,
+        password,
+        hotelcode,
+        directory,
+      });
+
+      res.status(201).json({ message: "Hotel added successfully", hotelcode });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getAllHotels(req, res, next) {
+    try {
+      const hotels = await getAllHotels();
+      res.status(200).json(hotels);
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async updateHotel(req, res, next) {
+    try {
+      const { hotelcode } = req.params;
+      if (!hotelcode) {
+        return res.status(400).json({
+          error: "hotelcode parameter is required",
+        });
+      }
+      const existingHotel = await getHotelByHotelcode(hotelcode);
+      if (!existingHotel) {
+        return res.status(404).json({ error: "Hotel not found" });
+      }
+
+      const { username, password, directory, active } = req.body;
+      const updatedHotel = await editHotel(hotelcode, {
+        ...(username && { username }),
+        ...(password && { password }),
+        ...(directory && { directory }),
+        ...(active !== undefined && { active }),
+      });
+
+      res.status(200).json({
+        message: "Hotel updated successfully",
+        data: updatedHotel,
+      });
     } catch (err) {
       next(err);
     }

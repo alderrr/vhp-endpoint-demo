@@ -25,6 +25,11 @@ const errorHandler = (err, req, res, next) => {
     statusDescription = "Bad Request - Invalid XML body";
   }
 
+  if (err.message === "Invalid JSON format") {
+    statusCode = 400;
+    statusDescription = "Bad Request - Invalid JSON format";
+  }
+
   if (err.message === "Unsupported OTA Message Type") {
     statusCode = 400;
     statusDescription = "Bad Request - Unsupported OTA Message Type";

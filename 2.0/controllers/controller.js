@@ -8,6 +8,7 @@ const checkToken = require("../helpers/checkToken");
 const checkMessageId = require("../helpers/checkMessageId");
 const checkMessageAction = require("../helpers/checkMessageAction");
 const createResponse = require("../helpers/createResponse");
+const { getHotelByUserPass } = require("../helpers/hotelCredential");
 const drive = process.env.DRIVE;
 
 class Controller {
@@ -39,7 +40,7 @@ class Controller {
       });
       const jsonObject = xmlParser.parse(xmlBody);
       const envelopeKey = Object.keys(jsonObject).find((k) =>
-        k.includes("Envelope")
+        k.includes("Envelope"),
       );
       const envelope = jsonObject[envelopeKey];
       const bodyKey = Object.keys(envelope).find((k) => k.includes("Body"));
@@ -48,7 +49,7 @@ class Controller {
         (k) =>
           k.includes("OTA_HotelResNotifRQ") ||
           k.includes("OTA_HotelRatePlanNotifRQ") ||
-          k.includes("OTA_HotelAvailNotifRQ")
+          k.includes("OTA_HotelAvailNotifRQ"),
       );
       if (!messageKey) {
         throw new Error("Unsupported OTA Message Type");
@@ -72,7 +73,7 @@ class Controller {
       // Decode authorization
       const base64Credentials = authorization.slice(6).trim();
       const decodedSecret = Buffer.from(base64Credentials, "base64").toString(
-        "utf-8"
+        "utf-8",
       );
       const userId = decodedSecret.split(":")[0];
       // const hotelcode = decodedSecret.split(":")[1];
@@ -100,7 +101,7 @@ class Controller {
       } else {
         formattedTime = Math.floor(
           (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
-            1000
+            1000,
         );
         fileName = `${fileType}_${formattedDate}_${formattedTime}.xml`;
       }
@@ -130,7 +131,7 @@ class Controller {
         userId,
         fileType,
         fileMessageId,
-        fileMessageAction
+        fileMessageAction,
       );
 
       // Sending Response Message
@@ -153,7 +154,7 @@ class Controller {
           const base64Credentials = authorization.slice(6).trim();
           const decodedSecret = Buffer.from(
             base64Credentials,
-            "base64"
+            "base64",
           ).toString("utf-8");
           const userId = decodedSecret.split(":")[0];
           userInfo = userId;
@@ -195,8 +196,8 @@ class Controller {
         `[${timestamp}] Test connection log:\n${JSON.stringify(
           logData,
           null,
-          2
-        )}\n\n`
+          2,
+        )}\n\n`,
       );
 
       res.status(200).json({
@@ -207,6 +208,52 @@ class Controller {
         user: userInfo,
         client_ip: clientIp,
         headers: requestHeaders,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async testPayloadJSON(req, res, next) {
+    try {
+      const jsonBody = req.body;
+
+      if (!drive) {
+        throw {
+          name: "Missing Environment Variable: Drive",
+        };
+      }
+
+      if (
+        !jsonBody ||
+        typeof jsonBody !== "object" ||
+        Array.isArray(jsonBody)
+      ) {
+        throw {
+          name: "Invalid JSON format",
+        };
+      }
+
+      const date = new Date();
+      const formattedDate = date.toISOString().slice(0, 10);
+      const timestamp = date
+        .toISOString()
+        .replace(/[:.]/g, "")
+        .replace("T", "_")
+        .slice(0, 15);
+
+      const folderPath = path.join(`${drive}/PAYLOAD/JSON/${formattedDate}/`);
+      const fileName = `payload_${timestamp}.json`;
+      const filePath = path.join(folderPath, fileName);
+
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+      fs.writeFileSync(filePath, JSON.stringify(jsonBody, null, 2), "utf-8");
+
+      res.status(201).json({
+        statusCode: 201,
+        statusDescription: "SUCCESS",
+        data: "JSON payload stored successfully",
       });
     } catch (error) {
       next(error);
@@ -252,7 +299,7 @@ class Controller {
       const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
       const formattedTime = Math.floor(
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
-          1000
+          1000,
       );
       const fileName = `rsv_${hotelCode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
@@ -319,7 +366,7 @@ class Controller {
       const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
       const formattedTime = Math.floor(
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
-          1000
+          1000,
       );
       const fileName = `rate_${hotelCode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
@@ -386,7 +433,7 @@ class Controller {
       const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
       const formattedTime = Math.floor(
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
-          1000
+          1000,
       );
       const fileName = `notifRS_${hotelCode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
@@ -410,6 +457,80 @@ class Controller {
       });
     } catch (err) {
       console.error(err);
+      next(err);
+    }
+  }
+  static async receiveMessage(req, res, next) {
+    try {
+      const xmlBody = req.body;
+
+      if (
+        !xmlBody ||
+        typeof xmlBody !== "string" ||
+        XMLValidator.validate(xmlBody) !== true
+      ) {
+        throw {
+          name: "Invalid XML body",
+        };
+      }
+
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        removeNSPrefix: true,
+      });
+
+      const jsonObject = parser.parse(xmlBody);
+      const header = jsonObject.Envelope.Header;
+      const username = header.Security.UsernameToken.Username;
+      const password = header.Security.UsernameToken.Password;
+      const messageId = header.MessageID;
+
+      const hotel = await getHotelByUserPass(username, password);
+      if (!hotel) throw new Error("Unauthorized - Invalid Username/Password");
+      const hotelcode = hotel.hotelcode;
+      const directory = hotel.directory ? hotel.directory : "VHP-CM";
+
+      if (hotel.active != true)
+        throw new Error("Unauthorized - User status is inactive");
+
+      const formattedDate = new Date()
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, "");
+      const folderPath = path.join(`${drive}/${directory}/${hotelcode}/raw/`);
+      const formattedTime = Math.floor(
+        (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
+          1000,
+      );
+      const fileName = `notifRS_${messageId}_${formattedDate}${formattedTime}.xml`;
+      const filePath = path.join(folderPath, fileName);
+
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+      fs.writeFileSync(filePath, xmlBody, "utf-8");
+
+      for (let i = 1; i <= 12; i++) {
+        let debugPath = path.join(
+          `${drive}/${directory}/${hotelcode}/debug${i}/`,
+        );
+        if (!fs.existsSync(debugPath)) {
+          fs.mkdirSync(debugPath, { recursive: true });
+        }
+      }
+      const now = new Date().toISOString().slice(0, 19);
+      res.set("Content-Type", "application/soap+xml").status(200)
+        .send(`<OTA_HotelResNotifRS TimeStamp="${now}">
+        <HotelReservations>
+          <HotelReservation>
+            <ResGlobalInfo>
+              <HotelReservationIDs></HotelReservationIDs>
+            </ResGlobalInfo>
+          </HotelReservation>
+        </HotelReservations>
+        <Success/>
+      </OTA_HotelResNotifRS>`);
+    } catch (err) {
       next(err);
     }
   }
