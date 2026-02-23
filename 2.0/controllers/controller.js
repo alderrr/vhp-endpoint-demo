@@ -502,7 +502,7 @@ class Controller {
         (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
           1000,
       );
-      const fileName = `notifRS_${messageId}_${formattedDate}${formattedTime}.xml`;
+      const fileName = `rsv_${hotelcode}_${formattedDate}${formattedTime}.xml`;
       const filePath = path.join(folderPath, fileName);
 
       if (!fs.existsSync(folderPath)) {
