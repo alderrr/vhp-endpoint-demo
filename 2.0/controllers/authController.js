@@ -1,4 +1,5 @@
 const { signToken } = require("../helpers/jwt");
+const { signCmsToken } = require("../helpers/cmsJwt");
 const {
   addClient,
   findAllClients,
@@ -129,6 +130,63 @@ class authController {
       res.status(200).json({
         message: "Hotel updated successfully",
         data: updatedHotel,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async deleteHotel(req, res, next) {
+    try {
+      const { hotelcode } = req.params;
+      if (!hotelcode) {
+        return res.status(400).json({
+          error: "hotelcode parameter is required",
+        });
+      }
+
+      const existingHotel = await getHotelByHotelcode(hotelcode);
+
+      if (!existingHotel) {
+        return res.ststus(400).json({
+          error: "Hotel not found",
+        });
+      }
+
+      await verifyHotel.deleteHotel(hotelcode);
+
+      res.status(200).json({
+        message: "Hotel deleted successfully",
+        hotelcode,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async cmsLogin(req, res, next) {
+    try {
+      const { username, password } = req.body;
+
+      if (
+        username === process.env.CMS_ADMIN_USERNAME &&
+        password === process.env.CMS_ADMIN_PASSWORD
+      ) {
+        const token = signCmsToken({
+          username: username,
+
+          role: "admin",
+        });
+
+        return res.json({
+          access_token: token,
+
+          token_type: "Bearer",
+
+          expires_in: 28800,
+        });
+      }
+
+      return res.status(401).json({
+        error: "Invalid login",
       });
     } catch (err) {
       next(err);

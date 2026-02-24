@@ -3,6 +3,7 @@ dotenv.config();
 const isProduction = process.env.NODE_ENV === "production";
 
 const fs = require("fs");
+const path = require("path");
 const https = require("https");
 const express = require("express");
 const errorHandler = require("./middlewares/errorHandler");
@@ -18,10 +19,17 @@ app.use(
   express.text({
     type: ["application/xml", "application/soap+xml"],
     limit: "25mb",
-  })
+  }),
 );
 
 // app.use(morganMiddleware);
+
+app.use("/cms/leden", express.static("public"));
+
+app.use("/cms/leden", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 app.use(router);
 app.use(errorHandler);
 
@@ -29,13 +37,13 @@ if (isProduction) {
   //! Load SSL certificates
   const sslOptions = {
     key: fs.readFileSync(
-      `C:\\Certbot\\live\\integration.e1-vhp.com\\privkey.pem`
+      `C:\\Certbot\\live\\integration.e1-vhp.com\\privkey.pem`,
     ),
     // cert: fs.readFileSync(
     //   `C:\\Certbot\\live\\integration.e1-vhp.com\\cert.pem`
     // ),
     cert: fs.readFileSync(
-      `C:\\Certbot\\live\\integration.e1-vhp.com\\fullchain.pem`
+      `C:\\Certbot\\live\\integration.e1-vhp.com\\fullchain.pem`,
     ),
   };
 
