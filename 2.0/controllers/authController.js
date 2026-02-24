@@ -11,6 +11,7 @@ const {
   getAllHotels,
   getHotelByHotelcode,
   editHotel,
+  deleteHotel,
   verifyHotel,
 } = require("../helpers/hotelCredential");
 
@@ -152,7 +153,7 @@ class authController {
         });
       }
 
-      await verifyHotel.deleteHotel(hotelcode);
+      await deleteHotel(hotelcode);
 
       res.status(200).json({
         message: "Hotel deleted successfully",

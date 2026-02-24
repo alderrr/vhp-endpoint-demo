@@ -53,33 +53,48 @@ export default function Login() {
       </div>
 
       {/* RIGHT */}
+
       <div className="w-1/2 flex justify-center items-center">
         <div className="w-96">
           <h2 className="text-gray-500">Welcome to</h2>
 
           <h1 className="text-3xl font-bold mb-5">VHP User Dashboard</h1>
 
-          <input
-            placeholder="Username"
-            className="border w-full p-2 mb-3"
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          {/* FORM START */}
 
-          <input
-            type="password"
-            placeholder="Password"
-            className="border w-full p-2 mb-3"
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
 
-          {error && <p className="text-red-500">{error}</p>}
-
-          <button
-            onClick={handleLogin}
-            className="bg-[#1b8fc2] text-white w-full p-2 mt-3"
+              handleLogin();
+            }}
           >
-            LOG IN
-          </button>
+            <input
+              placeholder="Username"
+              className="border w-full p-2 mb-3"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              className="border w-full p-2 mb-3"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            {error && <p className="text-red-500">{error}</p>}
+
+            <button
+              type="submit"
+              className="bg-[#1b8fc2] text-white w-full p-2 mt-3 hover:bg-[#1679a5]"
+            >
+              LOG IN
+            </button>
+          </form>
+
+          {/* FORM END */}
         </div>
       </div>
     </div>

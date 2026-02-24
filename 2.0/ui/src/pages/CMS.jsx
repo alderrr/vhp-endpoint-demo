@@ -166,18 +166,22 @@ export default function CMS() {
   }
 
   async function deleteUser() {
-    await fetch(`/api/dev/security/credentials/${confirmDelete.hotelcode}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      await fetch(`/api/dev/security/credentials/${confirmDelete.hotelcode}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    setConfirmDelete(null);
+      setConfirmDelete(null);
 
-    showToast("User deleted", "red");
+      showToast("User deleted", "red");
 
-    loadUsers();
+      loadUsers();
+    } catch {
+      showToast("Delete failed", "red");
+    }
   }
 
   function logout() {
@@ -192,21 +196,6 @@ export default function CMS() {
       setSortField(col);
       setSortAsc(true);
     }
-  }
-
-  async function toggleActive(user) {
-    await fetch(`/api/dev/security/credentials/${user.hotelcode}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        active: user.active === true ? false : true,
-      }),
-    });
-
-    loadUsers();
   }
 
   const start = (page - 1) * perPage;
@@ -359,8 +348,7 @@ export default function CMS() {
 
                   <td className="w-1/8 px-6 py-4">
                     <span
-                      onClick={() => toggleActive(u)}
-                      className={`cursor-pointer font-medium transition-colors ${u.active === true ? "text-green-600 hover:text-green-700" : "text-gray-400 hover:text-gray-500"}`}
+                      className={`font-medium ${u.active === true ? "text-green-600" : "text-gray-400"}`}
                     >
                       {u.active === true ? "Active" : "Inactive"}
                     </span>
@@ -542,6 +530,42 @@ export default function CMS() {
                   }
                 />
               </div>
+
+              {/* Active */}
+
+              {editMode && (
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">
+                    Status
+                  </label>
+
+                  <div className="border border-gray-300 rounded px-3 py-2 bg-white hover:bg-gray-50 transition focus-within:ring focus-within:ring-blue-200">
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={form.active === true}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            active: e.target.checked,
+                          })
+                        }
+                        className="w-4 h-4 accent-blue-500"
+                      />
+
+                      <span
+                        className={`font-medium ${
+                          form.active === true
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {form.active === true ? "Active" : "Inactive"}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* FOOTER */}
@@ -570,7 +594,6 @@ export default function CMS() {
       )}
 
       {/* DELETE CONFIRM */}
-
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
           <div className="bg-white p-6 rounded">
