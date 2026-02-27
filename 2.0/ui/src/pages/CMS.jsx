@@ -175,12 +175,12 @@ export default function CMS() {
           },
         });
         if (res.ok) {
-          navigate("/cms/leden/login");
+          navigate("/dashboard");
         } else {
           localStorage.removeItem("cms_token");
         }
       } catch {
-        navigate("/cms/leden/login");
+        navigate("/login");
       }
     };
     validateTokenRedirect();
