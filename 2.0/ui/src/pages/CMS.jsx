@@ -1,32 +1,24 @@
 import { useEffect, useState, useRef } from "react";
 import { Wrench, Trash2, ArrowUpDown, Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function CMS() {
+  const navigate = useNavigate();
   const token = localStorage.getItem("cms_token");
-
   const [users, setUsers] = useState([]);
   const [filtered, setFiltered] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
-
   const [page, setPage] = useState(1);
   const perPage = 5;
-
   const [sortField, setSortField] = useState("username");
   const [sortAsc, setSortAsc] = useState(true);
-
   const [toast, setToast] = useState(null);
-
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
-
   const [confirmDelete, setConfirmDelete] = useState(null);
-
   const [showPassword, setShowPassword] = useState({});
   const [statusFilter, setStatusFilter] = useState("all");
-
   const [errors, setErrors] = useState({});
   const modalRef = useRef(null);
   const [saving, setSaving] = useState(false);
@@ -39,76 +31,25 @@ export default function CMS() {
     active: true,
   });
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  useEffect(() => {
-    let data = [...users];
-
-    if (statusFilter !== "all") {
-      data = data.filter((u) =>
-        statusFilter === "active" ? u.active === true : u.active !== true,
-      );
-    }
-
-    data = data.filter((u) =>
-      u.username.toLowerCase().includes(search.toLowerCase()),
-    );
-
-    data.sort((a, b) => {
-      if (a[sortField] < b[sortField]) return sortAsc ? -1 : 1;
-      if (a[sortField] > b[sortField]) return sortAsc ? 1 : -1;
-
-      return 0;
-    });
-
-    setFiltered(data);
-  }, [users, search, sortField, sortAsc, statusFilter]);
-
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        setShowModal(false);
-      }
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem("cms_token");
-
-    if (!token) {
-      location.href = "/cms/leden/login";
-    }
-  }, []);
-
-  async function loadUsers() {
+  const loadUsers = async () => {
     setLoading(true);
-
     const res = await fetch("/api/dev/security/credentials", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-
     const data = await res.json();
-
     setUsers(data);
-
     setLoading(false);
-  }
+  };
 
   function showToast(msg, color = "green") {
     setToast({ msg, color });
-
     setTimeout(() => setToast(null), 3000);
   }
 
   function openAdd() {
     setEditMode(false);
-
     setForm({
       username: "",
       password: "",
@@ -116,15 +57,12 @@ export default function CMS() {
       directory: "",
       active: true,
     });
-
     setShowModal(true);
   }
 
   function openEdit(user) {
     setEditMode(true);
-
     setForm(user);
-
     setShowModal(true);
   }
 
@@ -173,11 +111,8 @@ export default function CMS() {
           Authorization: `Bearer ${token}`,
         },
       });
-
       setConfirmDelete(null);
-
       showToast("User deleted", "red");
-
       loadUsers();
     } catch {
       showToast("Delete failed", "red");
@@ -186,7 +121,6 @@ export default function CMS() {
 
   function logout() {
     localStorage.removeItem("cms_token");
-
     location.href = "/cms/leden/login";
   }
 
@@ -197,6 +131,60 @@ export default function CMS() {
       setSortAsc(true);
     }
   }
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    let data = [...users];
+    if (statusFilter !== "all") {
+      data = data.filter((u) =>
+        statusFilter === "active" ? u.active === true : u.active !== true,
+      );
+    }
+    data = data.filter((u) =>
+      u.username.toLowerCase().includes(search.toLowerCase()),
+    );
+    data.sort((a, b) => {
+      if (a[sortField] < b[sortField]) return sortAsc ? -1 : 1;
+      if (a[sortField] > b[sortField]) return sortAsc ? 1 : -1;
+      return 0;
+    });
+    setFiltered(data);
+  }, [users, search, sortField, sortAsc, statusFilter]);
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setShowModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
+
+  useEffect(() => {
+    const validateTokenRedirect = async () => {
+      const token = localStorage.getItem("cms_token");
+      if (!token) return;
+      try {
+        const res = await fetch("/api/dev/security/credentials", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          navigate("/cms/leden/login");
+        } else {
+          localStorage.removeItem("cms_token");
+        }
+      } catch {
+        navigate("/cms/leden/login");
+      }
+    };
+    validateTokenRedirect();
+  }, [navigate]);
 
   const start = (page - 1) * perPage;
   const current = filtered.slice(start, start + perPage);

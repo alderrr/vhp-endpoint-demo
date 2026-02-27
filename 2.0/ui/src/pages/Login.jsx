@@ -33,12 +33,26 @@ export default function Login() {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem("cms_token");
-
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, []);
+    const validateTokenRedirect = async () => {
+      const token = localStorage.getItem("cms_token");
+      if (!token) return;
+      try {
+        const res = await fetch("/api/dev/security/credentials", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          navigate("/dashboard");
+        } else {
+          localStorage.removeItem("cms_token");
+        }
+      } catch {
+        setError("Server unreachable");
+      }
+    };
+    validateTokenRedirect();
+  }, [navigate]);
 
   return (
     <div className="h-screen flex">
