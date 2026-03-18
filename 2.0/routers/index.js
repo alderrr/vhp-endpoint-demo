@@ -29,7 +29,7 @@ router.post(
 
 // NEW ENDPOINT 23-02-2026
 router.post("/api/v1/events-delivery/raw-message", Controller.receiveMessage);
-router.post("api/dev/load-test", Controller.loadTesting);
+router.post("/api/dev/load-test", Controller.loadTesting);
 router.post("/api/cms/login", authController.cmsLogin);
 router.post(
   "/api/dev/security/credentials",
