@@ -534,6 +534,18 @@ class Controller {
       next(err);
     }
   }
+  static async loadTesting(req, res, next) {
+    try {
+      const xml = req.body;
+      console.log("Received XML");
+      res.status(202).json({
+        status: "ACCEPTED",
+        message: "Message received",
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = Controller;
