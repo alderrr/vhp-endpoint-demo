@@ -167,7 +167,7 @@ export default function CMS() {
   useEffect(() => {
     const validateTokenRedirect = async () => {
       const token = localStorage.getItem("cms_token");
-      if (!token) return;
+      if (!token) navigate("/login");
       try {
         const res = await fetch("/api/dev/security/credentials", {
           headers: {
@@ -178,6 +178,7 @@ export default function CMS() {
           navigate("/dashboard");
         } else {
           localStorage.removeItem("cms_token");
+          navigate("/login");
         }
       } catch {
         navigate("/login");
