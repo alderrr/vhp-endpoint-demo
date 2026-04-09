@@ -274,6 +274,8 @@ class Controller {
       const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: "@",
+        parseNodeValue: true,
+        ignoreNamespace: true,
       });
       const result = parser.parse(xmlPayload);
 
