@@ -259,6 +259,36 @@ class Controller {
       next(error);
     }
   }
+  static async testPayloadXML(req, res, next) {
+    try {
+      const xmlPayload = req.body;
+
+      if (!XMLValidator.validate(xmlPayload)) {
+        return res.status(400).json({
+          statusCode: 400,
+          statusDescription: "Invalid XML format",
+          data: "Error: The provided XML is not valid",
+        });
+      }
+
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "@",
+      });
+      const result = parser.parse(xmlPayload);
+
+      const hotelCode =
+        result.OTA_HotelInvCountNotifRQ.Inventories["@_HotelCode"];
+
+      res.status(202).json({
+        statusCode: 202,
+        statusDescription: `Message Received | Hotel Code ${hotelCode}`,
+        data: "SUCCESS",
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
   static async createReservation(req, res, next) {
     try {
       const { sub } = req.user;

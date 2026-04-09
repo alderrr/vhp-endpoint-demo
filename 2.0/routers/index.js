@@ -53,4 +53,5 @@ router.delete(
 );
 
 router.post("/api/dev/payload/json", Controller.testPayloadJSON);
+router.post("/api/dev/payload/xml", Controller.testPayloadXML);
 module.exports = router;
