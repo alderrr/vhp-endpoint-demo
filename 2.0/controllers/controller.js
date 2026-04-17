@@ -218,9 +218,7 @@ class Controller {
       const jsonBody = req.body;
 
       if (!drive) {
-        throw {
-          name: "Missing Environment Variable: Drive",
-        };
+        throw new Error("Missing Environment Variable: Drive");
       }
 
       if (
@@ -228,9 +226,7 @@ class Controller {
         typeof jsonBody !== "object" ||
         Array.isArray(jsonBody)
       ) {
-        throw {
-          name: "Invalid JSON format",
-        };
+        throw new Error("Invalid JSON format");
       }
 
       const date = new Date();
@@ -297,18 +293,14 @@ class Controller {
       const xmlBody = req.body;
 
       if (!drive) {
-        throw {
-          name: "Missing Environment Variable: Drive",
-        };
+        throw new Error("Missing Environment Variable: Drive");
       }
       if (
         !xmlBody ||
         typeof xmlBody !== "string" ||
         XMLValidator.validate(xmlBody) !== true
       ) {
-        throw {
-          name: "Invalid XML body",
-        };
+        throw new Error("Invalid XML body");
       }
 
       const parser = new XMLParser({
@@ -322,7 +314,7 @@ class Controller {
       const hotelCode =
         notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
           ?.BasicPropertyInfo?.HotelCode;
-      if (!hotelCode) throw { name: "HotelCode not found in XML" };
+      if (!hotelCode) throw new Error("HotelCode not found in XML");
 
       const formattedDate = new Date()
         .toISOString()
@@ -364,18 +356,14 @@ class Controller {
       const xmlBody = req.body;
 
       if (!drive) {
-        throw {
-          name: "Missing Environment Variable: Drive",
-        };
+        throw new Error("Missing Environment Variable: Drive");
       }
       if (
         !xmlBody ||
         typeof xmlBody !== "string" ||
         XMLValidator.validate(xmlBody) !== true
       ) {
-        throw {
-          name: "Invalid XML body",
-        };
+        throw new Error("Invalid XML body");
       }
 
       const parser = new XMLParser({
@@ -385,11 +373,11 @@ class Controller {
       const parsedXml = parser.parse(xmlBody);
 
       const notifRQ =
-        parsedXml["OTA_HotelResNotifRQ"] || parsedXml["ns:OTA_HotelResNotifRQ"];
-      const hotelCode =
-        notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
-          ?.BasicPropertyInfo?.HotelCode;
-      if (!hotelCode) throw { name: "HotelCode not found in XML" };
+        parsedXml["OTA_HotelRatePlanNotifRQ"] ||
+        parsedXml["ns:OTA_HotelRatePlanNotifRQ"];
+
+      const hotelCode = notifRQ?.RatePlans?.HotelCode;
+      if (!hotelCode) throw new Error("HotelCode not found in XML");
 
       const formattedDate = new Date()
         .toISOString()
@@ -431,18 +419,14 @@ class Controller {
       const xmlBody = req.body;
 
       if (!drive) {
-        throw {
-          name: "Missing Environment Variable: Drive",
-        };
+        throw new Error("Missing Environment Variable: Drive");
       }
       if (
         !xmlBody ||
         typeof xmlBody !== "string" ||
         XMLValidator.validate(xmlBody) !== true
       ) {
-        throw {
-          name: "Invalid XML body",
-        };
+        throw new Error("Invalid XML body");
       }
 
       const parser = new XMLParser({
@@ -456,7 +440,7 @@ class Controller {
       const hotelCode =
         notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
           ?.BasicPropertyInfo?.HotelCode;
-      if (!hotelCode) throw { name: "HotelCode not found in XML" };
+      if (!hotelCode) throw new Error("HotelCode not found in XML");
 
       const formattedDate = new Date()
         .toISOString()
@@ -501,9 +485,7 @@ class Controller {
         typeof xmlBody !== "string" ||
         XMLValidator.validate(xmlBody) !== true
       ) {
-        throw {
-          name: "Invalid XML body",
-        };
+        throw new Error("Invalid XML body");
       }
 
       const parser = new XMLParser({
