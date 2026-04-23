@@ -22,6 +22,16 @@ router.post(
   Controller.createRate,
 );
 router.post(
+  "/api/v1/events-delivery/group-blocks",
+  authMiddleware,
+  Controller.createGroupBlock,
+);
+router.post(
+  "/api/v1/events-delivery/restrictions",
+  authMiddleware,
+  Controller.createRestriction,
+);
+router.post(
   "/api/v1/events-delivery/notifications",
   authMiddleware,
   Controller.requestNotification,

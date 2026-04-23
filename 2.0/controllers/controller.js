@@ -413,6 +413,149 @@ class Controller {
       next(err);
     }
   }
+  static async createGroupBlock(req, res, next) {
+    try {
+      const { sub } = req.user;
+      const xmlBody = req.body;
+
+      if (!drive) {
+        throw new Error("Missing Environment Variable: Drive");
+      }
+
+      if (
+        !xmlBody ||
+        typeof xmlBody !== "string" ||
+        XMLValidator.validate(xmlBody) !== true
+      ) {
+        throw new Error("Invalid XML body");
+      }
+
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+      });
+
+      const parsedXml = parser.parse(xmlBody);
+
+      // Handle namespace or non-namespace
+      const notifRQ =
+        parsedXml["OTA_HotelInvBlockNotifRQ"] ||
+        parsedXml["ns:OTA_HotelInvBlockNotifRQ"];
+
+      const hotelCode = notifRQ?.InvBlocks?.InvBlock?.HotelRef?.HotelCode;
+
+      if (!hotelCode) throw new Error("HotelCode not found in XML");
+
+      const formattedDate = new Date()
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, "");
+
+      const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
+
+      const formattedTime = Math.floor(
+        (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
+          1000,
+      );
+
+      const fileName = `grp_${hotelCode}_${formattedDate}${formattedTime}.xml`;
+      const filePath = path.join(folderPath, fileName);
+
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+      fs.writeFileSync(filePath, xmlBody, "utf-8");
+
+      // Debug folders
+      for (let i = 1; i <= 12; i++) {
+        let debugPath = path.join(`${drive}/${sub}/${hotelCode}/debug${i}/`);
+        if (!fs.existsSync(debugPath)) {
+          fs.mkdirSync(debugPath, { recursive: true });
+        }
+      }
+
+      res.status(202).json({
+        statusCode: 202,
+        statusDescription: `Group Block Received | Hotel Code: ${hotelCode}`,
+        data: "SUCCESS",
+      });
+    } catch (err) {
+      console.error(err);
+      next(err);
+    }
+  }
+  static async createRestriction(req, res, next) {
+    try {
+      const { sub } = req.user;
+      const xmlBody = req.body;
+
+      if (!drive) {
+        throw new Error("Missing Environment Variable: Drive");
+      }
+
+      if (
+        !xmlBody ||
+        typeof xmlBody !== "string" ||
+        XMLValidator.validate(xmlBody) !== true
+      ) {
+        throw new Error("Invalid XML body");
+      }
+
+      const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+      });
+
+      const parsedXml = parser.parse(xmlBody);
+
+      const notifRQ =
+        parsedXml["OTA_HotelAvailNotifRQ"] ||
+        parsedXml["ns:OTA_HotelAvailNotifRQ"];
+
+      const hotelCode = notifRQ?.AvailStatusMessages?.HotelCode;
+
+      if (!hotelCode) throw new Error("HotelCode not found in XML");
+
+      const formattedDate = new Date()
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, "");
+
+      const folderPath = path.join(`${drive}/${sub}/${hotelCode}/raw/`);
+
+      const formattedTime = Math.floor(
+        (Date.now() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) /
+          1000,
+      );
+
+      const fileName = `restr_${hotelCode}_${formattedDate}${formattedTime}.xml`;
+      const filePath = path.join(folderPath, fileName);
+
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+      fs.writeFileSync(filePath, xmlBody, "utf-8");
+
+      // Debug folders
+      for (let i = 1; i <= 12; i++) {
+        let debugPath = path.join(`${drive}/${sub}/${hotelCode}/debug${i}/`);
+        if (!fs.existsSync(debugPath)) {
+          fs.mkdirSync(debugPath, { recursive: true });
+        }
+      }
+
+      res.status(202).json({
+        statusCode: 202,
+        statusDescription: `Restriction Received | Hotel Code: ${hotelCode}`,
+        data: "SUCCESS",
+      });
+    } catch (err) {
+      console.error(err);
+      next(err);
+    }
+  }
   static async requestNotification(req, res, next) {
     try {
       const { sub } = req.user;
