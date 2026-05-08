@@ -5,7 +5,7 @@ const errorHandler = (err, req, res, next) => {
   const detailError = {
     name: err.name || "Error",
     message: err.message || "Unknown error",
-    stack: err.stack,
+    // stack: err.stack, // Requested minimal error info
   };
 
   console.error(err);
