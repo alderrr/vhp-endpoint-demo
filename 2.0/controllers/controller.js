@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const axios = require("axios");
 const { Buffer } = require("buffer");
 const { XMLParser, XMLValidator } = require("fast-xml-parser");
 const verifyCredentials = require("../helpers/verification");
@@ -675,7 +676,21 @@ class Controller {
           fs.mkdirSync(debugPath, { recursive: true });
         }
       }
+
+      // Forward to Amadeus Webservice - START
+      const forwardUrl =
+        "http://api.amadeus.cm.staging.e1-vhp.com:20080/api/v1/ota/inventory";
+      const forwardResponse = await axios.post(forwardUrl, xmlBody, {
+        headers: {
+          "Content-Type": "application/xml",
+        },
+        timeout: 30000,
+      });
+      console.log("Forward response:", forwardResponse.status);
+      // Forward to Amadeus Webservice - END
+
       const now = new Date().toISOString().slice(0, 19) + "Z";
+
       res.set("Content-Type", "application/soap+xml").status(200)
         .send(`<OTA_HotelResNotifRS TimeStamp="${now}">
         <HotelReservations>
