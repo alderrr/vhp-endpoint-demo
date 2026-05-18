@@ -610,6 +610,18 @@ class Controller {
         }
       }
 
+      // Forward to Amadeus Webservice - START
+      const forwardUrl =
+        "http://api.amadeus.cm.staging.e1-vhp.com:20080/api/v1/ota/inventory";
+      const forwardResponse = await axios.post(forwardUrl, xmlBody, {
+        headers: {
+          "Content-Type": "application/xml",
+        },
+        timeout: 30000,
+      });
+      console.log("Forward response:", forwardResponse.status);
+      // Forward to Amadeus Webservice - END
+
       res.status(202).json({
         statusCode: 202,
         statusDescription: `Message Received | Hotel Code: ${hotelCode}`,
