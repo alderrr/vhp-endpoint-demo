@@ -36,7 +36,7 @@ class authController {
       res.json({
         access_token: accessToken,
         token_type: "Bearer",
-        expires_in: 300,
+        expires_in: 1800,
       });
     } catch (err) {
       next(err);
