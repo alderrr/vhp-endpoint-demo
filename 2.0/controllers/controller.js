@@ -742,8 +742,10 @@ class Controller {
       }
 
       // const forwardUrl = "http://localhost:5000/api/v1/ota/notifications";
+      // const forwardUrl =
+      //   "http://api.amadeus.cm.staging.e1-vhp.com:20080/api/v1/notifications";
       const forwardUrl =
-        "http://api.amadeus.cm.staging.e1-vhp.com:20080/api/v1/notifications";
+        "https://api.amadeus.cm.staging.e1-vhp.com/api/v1/notifications";
       await axios.post(forwardUrl, xmlBody, {
         headers: { "Content-Type": "application/xml" },
         timeout: 30000,
