@@ -347,7 +347,7 @@ class Controller {
         data: "SUCCESS",
       });
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       next(err);
     }
   }
@@ -410,7 +410,7 @@ class Controller {
         data: "SUCCESS",
       });
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       next(err);
     }
   }
@@ -482,7 +482,7 @@ class Controller {
         data: "SUCCESS",
       });
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       next(err);
     }
   }
@@ -553,7 +553,7 @@ class Controller {
         data: "SUCCESS",
       });
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       next(err);
     }
   }
@@ -611,8 +611,9 @@ class Controller {
       }
 
       // Forward to Amadeus Webservice - START
-      const forwardUrl =
-        "http://api.amadeus.cm.staging.e1-vhp.com:20080/api/v1/ota/inventory";
+      // const forwardUrl =
+      //   "http://api.amadeus.cm.staging.e1-vhp.com:20080/api/v1/ota/inventory";
+      const forwardUrl = "http://localhost:5000/api/v1/ota/inventory";
       const forwardResponse = await axios.post(forwardUrl, xmlBody, {
         headers: {
           "Content-Type": "application/xml",
@@ -628,7 +629,7 @@ class Controller {
         data: "SUCCESS",
       });
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       next(err);
     }
   }
@@ -688,7 +689,6 @@ class Controller {
           fs.mkdirSync(debugPath, { recursive: true });
         }
       }
-
       // Forward to Amadeus Webservice - START
       const forwardUrl =
         "http://api.amadeus.cm.staging.e1-vhp.com:20080/api/v1/ota/inventory";
@@ -725,6 +725,32 @@ class Controller {
       res.status(202).json({
         status: "ACCEPTED",
         message: "Message received",
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async forwardToAmadeus(req, res, next) {
+    try {
+      const xmlBody = req.body;
+
+      if (!xmlBody || typeof xmlBody !== "string") {
+        return res.status(400).json({
+          statusCode: 400,
+          statusDescription: "Invalid XML body",
+        });
+      }
+
+      // const forwardUrl = "http://localhost:5000/api/v1/ota/notifications";
+      const forwardUrl = "http://localhost:5000/api/v1/notifications";
+      await axios.post(forwardUrl, xmlBody, {
+        headers: { "Content-Type": "application/xml" },
+        timeout: 30000,
+      });
+      return res.status(202).json({
+        statusCode: 202,
+        statusDescription: "Message forwarded successfully",
+        data: "SUCCESS",
       });
     } catch (err) {
       next(err);

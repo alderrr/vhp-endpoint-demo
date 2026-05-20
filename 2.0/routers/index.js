@@ -31,10 +31,15 @@ router.post(
   authMiddleware,
   Controller.createRestriction,
 );
+// router.post(
+//   "/api/v1/events-delivery/notifications",
+//   authMiddleware,
+//   Controller.requestNotification,
+// );
 router.post(
   "/api/v1/events-delivery/notifications",
   authMiddleware,
-  Controller.requestNotification,
+  Controller.forwardToAmadeus,
 );
 
 // NEW ENDPOINT 23-02-2026

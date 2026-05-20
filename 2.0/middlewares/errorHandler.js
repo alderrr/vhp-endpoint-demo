@@ -8,7 +8,7 @@ const errorHandler = (err, req, res, next) => {
     // stack: err.stack, // Requested minimal error info
   };
 
-  console.error(err);
+  // console.error(err.stack);
 
   if (err.message === "Missing Environment Variable: Drive") {
     statusCode = 500;
