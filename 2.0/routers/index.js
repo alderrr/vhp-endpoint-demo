@@ -1,5 +1,6 @@
 const Controller = require("../controllers/controller");
 const authController = require("../controllers/authController");
+const MekariController = require("../controllers/perseus/mekariController");
 const authMiddleware = require("../middlewares/authentication");
 const cmsAuth = require("../middlewares/cmsAuth");
 const router = require("express").Router();
@@ -69,4 +70,12 @@ router.delete(
 
 router.post("/api/dev/payload/json", Controller.testPayloadJSON);
 router.post("/api/dev/payload/xml", Controller.testPayloadXML);
+
+// VHP Perseus - Mekari Integration (ITA)
+router.get("/api/v1/perseus/health", MekariController.healthCheck);
+router.post(
+  "/api/v1/perseus/notification",
+  MekariController.receiveNotificaton,
+);
+
 module.exports = router;
