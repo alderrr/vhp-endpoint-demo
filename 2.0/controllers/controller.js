@@ -312,9 +312,15 @@ class Controller {
 
       const notifRQ =
         parsedXml["OTA_HotelResNotifRQ"] || parsedXml["ns:OTA_HotelResNotifRQ"];
+
+      // const hotelCode =
+      //   notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
+      //     ?.BasicPropertyInfo?.HotelCode;
+      // if (!hotelCode) throw new Error("HotelCode not found in XML");
+
+      const basicPropertyInfo = findBasicPropertyInfo(notifRQ);
       const hotelCode =
-        notifRQ?.HotelReservations?.HotelReservation?.RoomStays?.RoomStay
-          ?.BasicPropertyInfo?.HotelCode;
+        basicPropertyInfo?.HotelCode || basicPropertyInfo?.["@_HotelCode"];
       if (!hotelCode) throw new Error("HotelCode not found in XML");
 
       const formattedDate = new Date()
@@ -760,5 +766,15 @@ class Controller {
     }
   }
 }
+
+const findBasicPropertyInfo = (obj) => {
+  if (!obj || typeof obj !== "object") return null;
+  if (obj.BasicPropertyInfo) return obj.BasicPropertyInfo;
+  for (const key of Object.keys(obj)) {
+    const result = findBasicPropertyInfo(obj[key]);
+    if (result) return result;
+  }
+  return null;
+};
 
 module.exports = Controller;
