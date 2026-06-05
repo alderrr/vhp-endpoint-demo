@@ -1,3 +1,11 @@
+const {
+  buildLegacySoapFault,
+} = require("../helpers/legacy/legacySoapResponse");
+
+const isLegacyRoute = (req) => {
+  return req.originalUrl === "/vhpws/htng.xml";
+};
+
 const errorHandler = (err, req, res, next) => {
   const statusCode = err.statusCode || 500;
 
@@ -18,6 +26,18 @@ const errorHandler = (err, req, res, next) => {
 
   if (process.env.NODE_ENV !== "production") {
     console.error(err);
+  }
+
+  if (isLegacyRoute(req)) {
+    const message =
+      err.message === "Invalid token"
+        ? "Invalid Username/Password"
+        : err.message || "Internal Server Error";
+
+    return res
+      .status(statusCode)
+      .type("application/soap+xml")
+      .send(buildLegacySoapFault(message));
   }
 
   return res.status(statusCode).json({
