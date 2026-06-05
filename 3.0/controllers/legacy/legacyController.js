@@ -1,6 +1,6 @@
 const { XMLParser } = require("fast-xml-parser");
 
-const { validateXmlBody } = require("../../helpers/xml/xmlParser");
+const { validateXmlBody } = require("../../helpers/xmlParser");
 const { verifyLegacyCredentials } = require("../../helpers/legacy/legacyAuth");
 const {
   getLegacyRequestType,
