@@ -18,6 +18,7 @@ router.post(
 );
 
 // Legacy
+router.get("/vhpws/htng.xml", LegacyController.healthCheck);
 router.post("/vhpws/htng.xml", LegacyController.handleHtng);
 
 module.exports = router;

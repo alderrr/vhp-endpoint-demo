@@ -11,7 +11,7 @@ class AmadeusController {
   static async healthCheck(req, res) {
     return res.status(200).json({
       status: "ok",
-      service: "vhp-amadeus-integration",
+      service: "vhp-integration-webservice",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
     });

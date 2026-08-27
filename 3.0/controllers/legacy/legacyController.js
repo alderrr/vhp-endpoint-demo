@@ -14,6 +14,15 @@ const {
 const { saveLegacyXml } = require("../../services/legacy/legacyFileService");
 
 class LegacyController {
+  static async healthCheck(req, res) {
+    return res.status(200).json({
+      status: "ok",
+      service: "vhp-integration-webservice",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
+  }
+
   static async handleHtng(req, res, next) {
     try {
       const { authorization } = req.headers;
