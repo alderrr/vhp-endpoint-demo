@@ -4,6 +4,7 @@ const {
   getMessageMeta,
   extractHotelCode,
   extractEchoToken,
+  extractReservationNumber,
 } = require("../../helpers/otaMessage");
 const { saveAmadeusXml } = require("../../services/amadeus/amadeusFileService");
 
@@ -36,6 +37,11 @@ class AmadeusController {
       const messageMeta = getMessageMeta(messageType, rootName);
       const echoToken = extractEchoToken(rootData);
 
+      const reservationNumber =
+        messageType === "reservation" && messageMeta.direction === "RS"
+          ? extractReservationNumber(rootData)
+          : null;
+
       let hotelCode = null;
 
       if (messageMeta.requiresHotelCode) {
@@ -57,6 +63,7 @@ class AmadeusController {
         direction: messageMeta.direction,
         filePrefix: messageMeta.filePrefix,
         echoToken,
+        reservationNumber,
         xmlBody,
       });
 

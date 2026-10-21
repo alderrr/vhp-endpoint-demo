@@ -130,6 +130,25 @@ const sanitizeFileNamePart = (value) => {
     .slice(0, 120);
 };
 
+const extractReservationNumber = (rootData) => {
+  const asArray = (value) =>
+    value == null ? [] : Array.isArray(value) ? value : [value];
+  for (const hotelReservations of asArray(rootData?.HotelReservations)) {
+    for (const reservation of asArray(hotelReservations?.HotelReservation)) {
+      for (const globalInfo of asArray(reservation?.ResGlobalInfo)) {
+        for (const ids of asArray(globalInfo?.HotelReservationIDs)) {
+          for (const id of asArray(ids?.HotelReservationID)) {
+            if (String(id?.ResID_Type).trim() !== "10") continue;
+            const number = sanitizeFileNamePart(id?.ResID_Value);
+            if (number) return number;
+          }
+        }
+      }
+    }
+  }
+  return null;
+};
+
 const extractEchoToken = (rootData) => {
   return sanitizeFileNamePart(rootData?.EchoToken);
 };
@@ -140,4 +159,5 @@ module.exports = {
   getMessageMeta,
   extractHotelCode,
   extractEchoToken,
+  extractReservationNumber,
 };

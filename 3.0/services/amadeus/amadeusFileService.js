@@ -32,6 +32,7 @@ const saveAmadeusXml = async ({
   direction,
   filePrefix,
   echoToken,
+  reservationNumber,
   xmlBody,
 }) => {
   if (!drive) {
@@ -59,9 +60,14 @@ const saveAmadeusXml = async ({
 
   const tokenSuffix = echoToken ? `_${echoToken}` : "";
 
+  const reservationSuffix =
+    direction === "RS" && filePrefix === "rsv_rs" && reservationNumber
+      ? `_${reservationNumber}`
+      : "";
+
   const fileName =
     direction === "RS"
-      ? `${filePrefix}_${timestamp}${tokenSuffix}.xml`
+      ? `${filePrefix}_${timestamp}${reservationSuffix}${tokenSuffix}.xml`
       : `${filePrefix}_${hotelCode}_${timestamp}${tokenSuffix}.xml`;
 
   const filePath = path.join(folderPath, fileName);
