@@ -38,7 +38,7 @@ class AmadeusController {
       const echoToken = extractEchoToken(rootData);
 
       const reservationNumber =
-        messageType === "reservation" && messageMeta.direction === "RS"
+        messageType === "reservations" && messageMeta.direction === "RS"
           ? extractReservationNumber(rootData)
           : null;
 
