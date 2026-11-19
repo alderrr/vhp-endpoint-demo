@@ -89,8 +89,10 @@ const formatLogEntry = ({
     // Write only the parsed <Errors> content. JSON preserves arbitrary fields,
     // attributes, nested elements, and multiple Error entries without guessing
     // which fields the OTA will return.
-    lines.push('Errors:');
-    lines.push(JSON.stringify(errors.length === 1 ? errors[0] : errors, null, 2));
+    // Match the compact, single-line format used for Warnings.
+    // JSON.stringify safely escapes line breaks in error values and retains
+    // all attributes, nested fields, and multiple errors.
+    lines.push(`Errors             : ${JSON.stringify(errors.length === 1 ? errors[0] : errors)}`);
   } else if (status !== 'SUCCESS') {
     // For REQUEST/UNKNOWN or errors without an <Errors> element (e.g. SOAP
     // Fault), retain the original XML so diagnostic detail is not lost.
