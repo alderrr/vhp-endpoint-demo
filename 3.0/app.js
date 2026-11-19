@@ -8,7 +8,6 @@ const express = require("express");
 
 const router = require("./routers");
 const errorHandler = require("./middlewares/errorHandler");
-const { startArchiveScheduler } = require("./jobs/archiveScheduler");
 
 const app = express();
 
@@ -52,11 +51,9 @@ if (isProduction) {
 
   https.createServer(sslOptions, app).listen(port, () => {
     console.log(`Production HTTPS server running on port ${port}`);
-    startArchiveScheduler();
   });
 } else {
   app.listen(port, () => {
     console.log(`Development server running on port ${port}`);
-    startArchiveScheduler();
   });
 }
