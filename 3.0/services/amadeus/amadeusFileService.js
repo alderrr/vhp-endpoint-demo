@@ -2,6 +2,8 @@
 
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { randomUUID } = require('node:crypto');
+const { MESSAGE_CONFIG, extractEchoToken } = require('../../helpers/otaMessage');
 
 const LOG_TIMEZONE = 'Asia/Jakarta';
 const pendingWrites = new Map(); // Serialize appends per log file within this Node.js process.
@@ -66,6 +68,7 @@ const formatLogEntry = ({
   warnings,
   errors,
   xmlBody,
+  xmlFileName = null,
 }) => {
   const lines = [
     '================================================================================',
@@ -79,6 +82,9 @@ const formatLogEntry = ({
     `Status             : ${safeLine(status)}`,
     `Body               : ${safeLine(status)}`,
   ];
+
+  // Link the daily log entry to its corresponding RQ XML file.
+  if (xmlFileName) lines.push(`XML File           : ${safeLine(xmlFileName)}`);
 
   // Successful RS responses are compact. Keep any important warning details.
   if (status === 'SUCCESS' && warnings?.length) {
@@ -103,6 +109,40 @@ const formatLogEntry = ({
   return lines.join('\n') + '\n\n';
 };
 
+/**
+ * Persist the original RQ exactly as received, in the same hotel/raw folder
+ * as its daily log. Use the historic XML naming convention, with an exclusive
+ * create to avoid overwriting another request in the same second.
+ */
+const saveRqXml = async ({ folderPath, hotelCode, messageType, echoToken, xmlBody, day, human }) => {
+  const config = MESSAGE_CONFIG[messageType];
+  if (!config) {
+    const error = new Error('Unsupported OTA message type for RQ XML storage');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Timestamp convention: YYYYMMDD + seconds since midnight (Jakarta time).
+  const [hh, mm, ss] = human.slice(11, 19).split(':').map(Number);
+  const seconds = hh * 3600 + mm * 60 + ss;
+  const safeEchoToken = extractEchoToken({ EchoToken: echoToken });
+  const suffix = safeEchoToken ? `_${safeEchoToken}` : '';
+  const baseName = `${config.filePrefix}_${hotelCode}_${day}${seconds}${suffix}`;
+  let fileName = `${baseName}.xml`;
+
+  for (;;) {
+    const filePath = path.join(folderPath, fileName);
+    try {
+      await fs.writeFile(filePath, xmlBody, { encoding: 'utf8', flag: 'wx' });
+      return { xmlFileName: fileName, xmlFilePath: filePath };
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+      // Never replace the earlier XML even when two requests share timestamp/EchoToken.
+      fileName = `${baseName}_${randomUUID()}.xml`;
+    }
+  }
+};
+
 /** Serialize concurrent writes to the SAME daily log within a single process. */
 const appendSequentially = (filePath, content) => {
   const previous = pendingWrites.get(filePath) || Promise.resolve();
@@ -116,7 +156,7 @@ const appendSequentially = (filePath, content) => {
 };
 
 /**
- * Replaces one-XML-per-request with daily append-only logs.
+ * Stores every request in a daily log; RQ also saves a standalone XML file.
  * Same folder rules as before:
  *   RS -> DRIVE/userId/raw/YYYYMMDD.log
  *   RQ -> DRIVE/userId/hotelCode/raw/YYYYMMDD.log
@@ -157,6 +197,14 @@ const appendAmadeusLog = async ({
   const fileName = `${day}.log`;
   const filePath = path.join(folderPath, fileName);
 
+  await fs.mkdir(folderPath, { recursive: true });
+  await createDebugFolders(basePath);
+
+  // RS remains log-only. Every RQ additionally creates its original XML.
+  const rqFile = direction === 'RQ'
+    ? await saveRqXml({ folderPath, hotelCode, messageType, echoToken, xmlBody, day, human })
+    : { xmlFileName: null, xmlFilePath: null };
+
   const logEntry = formatLogEntry({
     loggedAt: human,
     messageType,
@@ -169,13 +217,12 @@ const appendAmadeusLog = async ({
     warnings,
     errors,
     xmlBody,
+    xmlFileName: rqFile.xmlFileName,
   });
 
-  await fs.mkdir(folderPath, { recursive: true });
-  await createDebugFolders(basePath);
   await appendSequentially(filePath, logEntry);
 
-  return { folderPath, fileName, filePath };
+  return { folderPath, fileName, filePath, ...rqFile };
 };
 
 module.exports = { appendAmadeusLog };
